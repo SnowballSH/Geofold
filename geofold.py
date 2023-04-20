@@ -28,11 +28,11 @@ class Point:
     def y(self):
         return self.c.imag
 
-    def dist_pt(self, other):
-        return abs(self.c - other.c)
-
-    def dist_line(self, line):
-        return abs(line.project(self)) / math.sqrt(line.slope ** 2 + 1)
+    def dist(self, other):
+        if type(other) == Point:
+            return abs(self.c - other.c)
+        if type(other) == Line:
+            return abs(other.project(self)) / math.sqrt(other.slope ** 2 + 1)
 
 
 class Line:
@@ -59,10 +59,10 @@ class Line:
     def project(self, point):
         return self.slope * point.x - point.y + self.intercept
 
-    def at_x(self, x):
+    def xtoy(self, x):
         return self.slope * x + self.intercept
 
-    def at_y(self, y):
+    def ytox(self, y):
         return (y - self.intercept) / self.slope
 
     def intersect(self, other):
@@ -72,7 +72,7 @@ class Line:
             # ax + b = cx + d
             # x = (d - b) / (a - c)
             x = (other.intercept - self.intercept) / (self.slope - other.slope)
-            y = self.at_x(x)
+            y = self.xtoy(x)
             return Point(x, y)
         elif type(other) == Segment:
             print("Error: Use line.intersect(segment.line) instead")
@@ -88,10 +88,10 @@ class Line:
                 return []
             if delta == 0:
                 x = -b / (2 * a)
-                y = self.at_x(x)
+                y = self.xtoy(x)
                 return [Point(x, y)]
-            return sort_two_pts([Point((-b + math.sqrt(delta)) / (2 * a), self.at_x((-b + math.sqrt(delta)) / (2 * a))),
-                                 Point((-b - math.sqrt(delta)) / (2 * a), self.at_x((-b - math.sqrt(delta)) / (2 * a)))])
+            return sort_two_pts([Point((-b + math.sqrt(delta)) / (2 * a), self.xtoy((-b + math.sqrt(delta)) / (2 * a))),
+                                 Point((-b - math.sqrt(delta)) / (2 * a), self.xtoy((-b - math.sqrt(delta)) / (2 * a)))])
 
     def perpendicular(self, point):
         return Line(-1 / self.slope, point.y - point.x * -1 / self.slope)
@@ -100,7 +100,7 @@ class Line:
         return Line(self.slope, point.y - point.x * self.slope)
 
 
-def line_from_pts(a, b):
+def ptln(a, b):
     return Line((b.y - a.y) / (b.x - a.x), a.y - a.x * (b.y - a.y) / (b.x - a.x))
 
 
@@ -127,11 +127,11 @@ class Segment:
     # Logic
     @property
     def length(self):
-        return self.p1.dist_pt(self.p2)
+        return self.p1.dist(self.p2)
 
     @property
     def line(self):
-        return line_from_pts(self.p1, self.p2)
+        return ptln(self.p1, self.p2)
 
     @property
     def midpoint(self):
@@ -150,7 +150,7 @@ class Circle:
         return self.center == other.center and self.radius == other.radius
 
     # Logic
-    def at_x(self, x):
+    def xtoy(self, x):
         delta = self.radius ** 2 - (x - self.center.x) ** 2
         if delta < 0:
             return []
@@ -195,7 +195,7 @@ if __name__ == "__main__":
     C2 = CC(E, 180)
     C3 = CC(E, 108)
     D = C1.intersect(C2)[0]
-    K = C3.at_x(D.x)[0]
-    L1 = line_from_pts(E, K)
-    F = C1.intersect(L1)[0]
-    print(F.dist_pt(K))
+    K = C3.xtoy(D.x)[0]
+    EK = ptln(E, K)
+    F = C1.intersect(EK)[0]
+    print(F.dist(K))
