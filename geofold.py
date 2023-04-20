@@ -1,4 +1,6 @@
-# Python Implementation of Geofold, the 2D geometry solver
+"""
+Official Python Implementation of Geofold, the 2D geometry solver for TI-84 Python
+"""
 
 import math
 
