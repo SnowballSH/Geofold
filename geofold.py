@@ -182,14 +182,19 @@ class Circle:
             return sort_two_pts([Point(x3_2, y3_2), Point(x3_1, y3_1)])
 
 
+PT = Point
+LN = Line
+SG = Segment
+CC = Circle
+
 ORIGIN = Point(0, 0)
 
 if __name__ == "__main__":
-    C1 = Circle(ORIGIN, 200)
-    E = Point(200, 0)
-    C2 = Circle(E, 180)
-    C3 = Circle(E, 108)
-    D = C1.intersect(C2)[1]
+    C1 = CC(ORIGIN, 200)
+    E = PT(200, 0)
+    C2 = CC(E, 180)
+    C3 = CC(E, 108)
+    D = C1.intersect(C2)[0]
     K = C3.at_x(D.x)[0]
     L1 = line_from_pts(E, K)
     F = C1.intersect(L1)[0]
