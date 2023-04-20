@@ -90,15 +90,27 @@ class Line:
                 x = -b / (2 * a)
                 y = self.at_x(x)
                 return [Point(x, y)]
-            return [Point((-b + math.sqrt(delta)) / (2 * a), self.at_x((-b + math.sqrt(delta)) / (2 * a))),
-                    Point((-b - math.sqrt(delta)) / (2 * a), self.at_x((-b - math.sqrt(delta)) / (2 * a)))]
+            return sort_two_pts([Point((-b + math.sqrt(delta)) / (2 * a), self.at_x((-b + math.sqrt(delta)) / (2 * a))),
+                                 Point((-b - math.sqrt(delta)) / (2 * a), self.at_x((-b - math.sqrt(delta)) / (2 * a)))])
 
     def perpendicular(self, point):
         return Line(-1 / self.slope, point.y - point.x * -1 / self.slope)
 
+    def parallel(self, point):
+        return Line(self.slope, point.y - point.x * self.slope)
+
 
 def line_from_pts(a, b):
     return Line((b.y - a.y) / (b.x - a.x), a.y - a.x * (b.y - a.y) / (b.x - a.x))
+
+
+def sort_two_pts(arr):
+    if arr[0].x > arr[1].x:
+        return [arr[1], arr[0]]
+    elif arr[0].x == arr[1].x:
+        if arr[0].y > arr[1].y:
+            return [arr[1], arr[0]]
+    return [arr[0], arr[1]]
 
 
 class Segment:
@@ -138,6 +150,15 @@ class Circle:
         return self.center == other.center and self.radius == other.radius
 
     # Logic
+    def at_x(self, x):
+        delta = self.radius ** 2 - (x - self.center.x) ** 2
+        if delta < 0:
+            return []
+        if delta == 0:
+            return [Point(x, self.center.y)]
+        return sort_two_pts([Point(x, self.center.y - math.sqrt(delta)),
+                             Point(x, self.center.y + math.sqrt(delta))])
+
     def intersect(self, other):
         if type(other) == Line:
             return other.intersect(self)
@@ -156,11 +177,20 @@ class Circle:
             y3_1 = y2-h*(x1-x0)/d
             x3_2 = x2-h*(y1-y0)/d
             y3_2 = y2+h*(x1-x0)/d
-            return list(set([Point(x3_1, y3_1), Point(x3_2, y3_2)]))
+            if x3_1 == x3_2 and y3_1 == y3_2:
+                return [Point(x3_1, y3_1)]
+            return sort_two_pts([Point(x3_2, y3_2), Point(x3_1, y3_1)])
 
+
+ORIGIN = Point(0, 0)
 
 if __name__ == "__main__":
-    C1 = Circle(Point(0, 0), 5)
-    C2 = Circle(Point(10, 0), 8)
-    L1 = Line(2, 6)
-    print(C1.intersect(L1))
+    C1 = Circle(ORIGIN, 200)
+    E = Point(200, 0)
+    C2 = Circle(E, 180)
+    C3 = Circle(E, 108)
+    D = C1.intersect(C2)[1]
+    K = C3.at_x(D.x)[0]
+    L1 = line_from_pts(E, K)
+    F = C1.intersect(L1)[0]
+    print(F.dist_pt(K))
