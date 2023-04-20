@@ -8,7 +8,7 @@ class Point:
         self.c = complex(x, y)
 
     def __str__(self):
-        return 'Point({}, {})'.format(self.c.real, self.c.imag)
+        return "Point({}, {})".format(self.c.real, self.c.imag)
 
     def __eq__(self, other):
         return self.c == other.c
@@ -32,7 +32,7 @@ class Point:
         if type(other) == Point:
             return abs(self.c - other.c)
         if type(other) == Line:
-            return abs(other.project(self)) / math.sqrt(other.slope ** 2 + 1)
+            return abs(other.project(self)) / math.sqrt(other.slope**2 + 1)
 
 
 class Line:
@@ -44,7 +44,7 @@ class Line:
         # mx - y + b = 0
 
     def __str__(self):
-        return 'Line y = {}x + {}'.format(self.slope, self.intercept)
+        return "Line y = {}x + {}".format(self.slope, self.intercept)
 
     def __eq__(self, other):
         return self.slope == other.slope and self.intercept == other.intercept
@@ -80,18 +80,28 @@ class Line:
         elif type(other) == Circle:
             A, B, C = self.slope, -1, self.intercept
             h, k, r = other.center.x, other.center.y, other.radius
-            a = A ** 2 + B ** 2
-            b = 2 * A * C + 2 * A * B * k - 2 * h * B ** 2
-            c = C ** 2 + 2 * B * C * k - B ** 2 * (r ** 2 - h ** 2 - k ** 2)
-            delta = b ** 2 - 4 * a * c
+            a = A**2 + B**2
+            b = 2 * A * C + 2 * A * B * k - 2 * h * B**2
+            c = C**2 + 2 * B * C * k - B**2 * (r**2 - h**2 - k**2)
+            delta = b**2 - 4 * a * c
             if delta < 0:
                 return []
             if delta == 0:
                 x = -b / (2 * a)
                 y = self.xtoy(x)
                 return [Point(x, y)]
-            return sort_two_pts([Point((-b + math.sqrt(delta)) / (2 * a), self.xtoy((-b + math.sqrt(delta)) / (2 * a))),
-                                 Point((-b - math.sqrt(delta)) / (2 * a), self.xtoy((-b - math.sqrt(delta)) / (2 * a)))])
+            return sort_two_pts(
+                [
+                    Point(
+                        (-b + math.sqrt(delta)) / (2 * a),
+                        self.xtoy((-b + math.sqrt(delta)) / (2 * a)),
+                    ),
+                    Point(
+                        (-b - math.sqrt(delta)) / (2 * a),
+                        self.xtoy((-b - math.sqrt(delta)) / (2 * a)),
+                    ),
+                ]
+            )
 
     def perpendicular(self, point):
         return Line(-1 / self.slope, point.y - point.x * -1 / self.slope)
@@ -119,7 +129,7 @@ class Segment:
         self.p2 = p2
 
     def __str__(self):
-        return 'Segment({}, {})'.format(self.p1, self.p2)
+        return "Segment({}, {})".format(self.p1, self.p2)
 
     def __eq__(self, other):
         return self.p1 == other.p1 and self.p2 == other.p2
@@ -144,20 +154,24 @@ class Circle:
         self.radius = radius
 
     def __str__(self):
-        return 'Circle({}, {})'.format(self.center, self.radius)
+        return "Circle({}, {})".format(self.center, self.radius)
 
     def __eq__(self, other):
         return self.center == other.center and self.radius == other.radius
 
     # Logic
     def xtoy(self, x):
-        delta = self.radius ** 2 - (x - self.center.x) ** 2
+        delta = self.radius**2 - (x - self.center.x) ** 2
         if delta < 0:
             return []
         if delta == 0:
             return [Point(x, self.center.y)]
-        return sort_two_pts([Point(x, self.center.y - math.sqrt(delta)),
-                             Point(x, self.center.y + math.sqrt(delta))])
+        return sort_two_pts(
+            [
+                Point(x, self.center.y - math.sqrt(delta)),
+                Point(x, self.center.y + math.sqrt(delta)),
+            ]
+        )
 
     def intersect(self, other):
         if type(other) == Line:
@@ -168,15 +182,15 @@ class Circle:
         elif type(other) == Circle:
             x0, y0, r0 = self.center.x, self.center.y, self.radius
             x1, y1, r1 = other.center.x, other.center.y, other.radius
-            d = math.sqrt((x1-x0)**2 + (y1-y0)**2)
-            a = (r0**2-r1**2+d**2)/(2*d)
-            h = math.sqrt(r0**2-a**2)
-            x2 = x0+a*(x1-x0)/d
-            y2 = y0+a*(y1-y0)/d
-            x3_1 = x2+h*(y1-y0)/d
-            y3_1 = y2-h*(x1-x0)/d
-            x3_2 = x2-h*(y1-y0)/d
-            y3_2 = y2+h*(x1-x0)/d
+            d = math.sqrt((x1 - x0) ** 2 + (y1 - y0) ** 2)
+            a = (r0**2 - r1**2 + d**2) / (2 * d)
+            h = math.sqrt(r0**2 - a**2)
+            x2 = x0 + a * (x1 - x0) / d
+            y2 = y0 + a * (y1 - y0) / d
+            x3_1 = x2 + h * (y1 - y0) / d
+            y3_1 = y2 - h * (x1 - x0) / d
+            x3_2 = x2 - h * (y1 - y0) / d
+            y3_2 = y2 + h * (x1 - x0) / d
             if x3_1 == x3_2 and y3_1 == y3_2:
                 return [Point(x3_1, y3_1)]
             return sort_two_pts([Point(x3_2, y3_2), Point(x3_1, y3_1)])
